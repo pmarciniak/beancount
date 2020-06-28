@@ -314,19 +314,28 @@ class Position(_Position):
              r'(?:\s+{{([^}}]*)}})?'
              r'\s*$').format(NUMBER_RE, CURRENCY_RE),
             string)
-        if not match:
-            raise ValueError("Invalid string for position: '{}'".format(string))
+        if match:
+            currency = match.group(2)
+            cost_expression = match.group(3)
+        else:
+            match = re.match(
+                (r'\s*({})'
+                 r'(?:\s+{{([^}}]*)}})?'
+                 r'\s*$').format(NUMBER_RE, CURRENCY_RE),
+                string)
+            if not match:
+                raise ValueError("Invalid string for position: '{}'".format(string))
+            currency = "CHF"
+            cost_expression = match.group(2)
 
         number = D(match.group(1))
-        currency = match.group(2)
 
         # Parse a cost expression.
         cost_number = None
         cost_currency = None
         date = None
         label = None
-        cost_expression = match.group(3)
-        if match.group(3):
+        if cost_expression:
             expressions = [expr.strip() for expr in re.split('[,/]', cost_expression)]
             for expr in expressions:
 
